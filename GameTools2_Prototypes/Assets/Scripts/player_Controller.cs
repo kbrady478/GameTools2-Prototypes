@@ -12,16 +12,20 @@ public class player_Controller : MonoBehaviour
     public float turn_Smoothening = 0.1f;
     public float turn_Smooth_Velocity;
 
+    private bool crouching;
+
     // Jumping
     public Transform ground_Check;
     public LayerMask ground_Mask;
-    public float ground_Distance = 0.4f; // for groundcheck sphere
-    public float gravity = -2f;
-    public float jump_Height = 3f;
+    public float ground_Distance; // for groundcheck sphere
+    public float gravity;
+    public float jump_Height;
+    public float bullet_Jump_Velocity;
 
     private Vector3 velocity; // for gravity
     private bool is_Grounded;
 
+    public float random_Test_Var;
 
     // Update is called once per frame
     void Update()
@@ -41,12 +45,41 @@ public class player_Controller : MonoBehaviour
             velocity.y = -2f;
         }
 
+        // Crouching
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            crouching = true;
+        }
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+            crouching = false;
+
+
+
+        if (Input.GetKeyDown(KeyCode.Space) && crouching && is_Grounded)
+        {
+            print("f");
+            velocity.y = MathF.Sqrt(bullet_Jump_Velocity * random_Test_Var * gravity);
+        }
+        else if (Input.GetKeyDown(KeyCode.Space) && is_Grounded)
+            velocity.y = MathF.Sqrt(jump_Height * -2f * gravity);
+/*
+
+
+        // Jump
         if (Input.GetKeyDown(KeyCode.Space) && is_Grounded)
         {
-            velocity.y = MathF.Sqrt(jump_Height * -2f * gravity);
-        }
+            // Bulletjump
+            if (Input.GetKeyDown(KeyCode.LeftControl))
+            {
 
-            // Directional movement
+            }
+
+            else
+                velocity.y = MathF.Sqrt(jump_Height * -2f * gravity);
+        }
+*/
+
+        // Directional movement
         if (direction.magnitude >= 0.1f)
         {
             float target_Angle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + camera.eulerAngles.y;
