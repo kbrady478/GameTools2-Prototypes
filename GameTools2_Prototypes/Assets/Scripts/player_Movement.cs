@@ -46,7 +46,7 @@ public class player_Movement : MonoBehaviour
     {
         Move();
     }// End FixedUpdate()
-
+/*
     private void LateUpdate()
     {
          Look();
@@ -63,7 +63,7 @@ public class player_Movement : MonoBehaviour
         cam_Holder.transform.eulerAngles = new Vector3(look_Rotation, cam_Holder.transform.eulerAngles.y, cam_Holder.transform.eulerAngles.z);
 
     }// End Look()
-
+*/
 
     private void Move()
     {
