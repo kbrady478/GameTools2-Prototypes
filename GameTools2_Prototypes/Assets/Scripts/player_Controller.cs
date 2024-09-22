@@ -1,5 +1,6 @@
 // tutorial used: https://www.youtube.com/watch?v=4HpC--2iowE
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class player_Controller : MonoBehaviour
@@ -58,26 +59,13 @@ public class player_Controller : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && crouching && is_Grounded)
         {
             print("f");
-            velocity.y = MathF.Sqrt(bullet_Jump_Velocity * random_Test_Var * gravity);
+            //velocity.y = MathF.Sqrt(bullet_Jump_Velocity * random_Test_Var * gravity);
+
+            controller.Move(direction * bullet_Jump_Velocity * Time.deltaTime);
+        
         }
         else if (Input.GetKeyDown(KeyCode.Space) && is_Grounded)
             velocity.y = MathF.Sqrt(jump_Height * -2f * gravity);
-/*
-
-
-        // Jump
-        if (Input.GetKeyDown(KeyCode.Space) && is_Grounded)
-        {
-            // Bulletjump
-            if (Input.GetKeyDown(KeyCode.LeftControl))
-            {
-
-            }
-
-            else
-                velocity.y = MathF.Sqrt(jump_Height * -2f * gravity);
-        }
-*/
 
         // Directional movement
         if (direction.magnitude >= 0.1f)
