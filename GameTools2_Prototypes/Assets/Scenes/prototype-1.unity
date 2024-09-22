@@ -1452,20 +1452,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c559fc459ed8d84ebf8e38646a7bc39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  body_GFX: {fileID: 1353543620}
   orientation: {fileID: 967261316}
+  camera_Direction: {fileID: 1170549256}
   rigid_Body: {fileID: 1849681418}
   jump_Key: 32
+  crouch_Key: 306
+  ground_Mask:
+    serializedVersion: 2
+    m_Bits: 64
+  player_Height: 2
+  is_Grounded: 0
   move_Speed: 100
   ground_Drag: 1.5
   jump_Force: 8
   jump_Cooldown: 0.2
   air_Multiplier: 0.3
   jump_Ready: 0
-  ground_Mask:
-    serializedVersion: 2
-    m_Bits: 64
-  player_Height: 2
-  is_Grounded: 0
+  crouch_Width: 0
+  crouch_Height: 0
+  crouch_Transition_Time: 0
+  is_Crouched: 0
 --- !u!1 &1890826115
 GameObject:
   m_ObjectHideFlags: 0
