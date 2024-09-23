@@ -50,18 +50,37 @@ public class player_Movement : MonoBehaviour
     public float bullet_Jump_Drag;
     public bool is_Bullet_Jumping;
 
-    // crouching will probably break ground check due to height, check may protrude down, need to fix
+    [Header("Bullet Jump Animation")]
+    public float twirl_Duration;
+    public float sideways_Duration;
+
+    private Quaternion twirl_Start;
+    private Quaternion twirl_Target;
+    private Quaternion upright_Rotation;
+    private Quaternion sideways_Rotation;
+
+    // could be an idea where you chain bullet jumps by removing ground check on crouch, instead put it on the bullet jump check
+    // allows for jumps to be charged midair for release on contact with ground
 
     private void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;         
+        
         rigid_Body.freezeRotation = true;
 
         jump_Ready = true; 
         has_Crouch_Scaled = false;
         is_Bullet_Jumping = false;
 
+        // need to do jumping scale
         standing_Scale = new Vector3(body_GFX.transform.localScale.x, body_GFX.transform.localScale.y, body_GFX.transform.localScale.z);
         crouch_Scale = new Vector3(crouch_Width, crouch_Height, crouch_Width);
+
+        // to twirl character gfx on local y
+        twirl_Start = body_GFX.transform.rotation;
+        twirl_Target = twirl_Start * Quaternion.Euler(0, 360, 0);
+
     }
 
     private void Update()
@@ -170,21 +189,20 @@ public class player_Movement : MonoBehaviour
 
     private void Crouching()
     {
-        //print("crouch time");
         is_Crouched = true;
 
+        // Bullet Jump
         if (Input.GetKey(jump_Key))
         {
-
-            // will want to multiply bullet_Jump_Force by charge %
-            rigid_Body.AddForce(rigid_Body.transform.up * (jump_Force * 0.15f), ForceMode.Impulse);
+            rigid_Body.AddForce(rigid_Body.transform.up * (jump_Force * 0.25f), ForceMode.Impulse);
             rigid_Body.AddForce(camera_Direction.transform.forward * (bullet_Jump_Force * bullet_Jump_Charge), ForceMode.Impulse); // ForceMode.Impulse to only apply once
             rigid_Body.linearDamping = bullet_Jump_Drag;
             bullet_Jump_Charge = 0f; // reset after jump
 
-            // transition to jump
+           //StartCoroutine("Bullet_Jump_Alignment");
         }
         
+        // Crouching
         else if (has_Crouch_Scaled == false)
         {
             has_Crouch_Scaled = true;
@@ -229,8 +247,49 @@ public class player_Movement : MonoBehaviour
             yield return null;
         }
 
-
-
     }// end Crouch_to_Stand_Transition()
+
+    // align character rotation with angle of camera to give leaping effect
+    
+    // change the x of the body_GFX to 90 then back
+   /*
+    IEnumerator Bullet_Jump_Alignment()
+    {
+        upright_Rotation = Quaternion.Euler(body_GFX.transform.localRotation.x, rigid_Body.transform.rotation.y, rigid_Body.transform.rotation.z);
+        sideways_Rotation = Quaternion.Euler(body_GFX.transform.localRotation.x + 50, rigid_Body.transform.rotation.y, rigid_Body.transform.rotation.z);
+
+        StopCoroutine("Stand_to_Crouch_Transition");
+        StopCoroutine("Crouch_to_Stand_Transition");
+
+        float time_Elapsed = 0;
+
+        while (time_Elapsed < (1))
+        {
+            body_GFX.transform.localRotation = Quaternion.Slerp(upright_Rotation, sideways_Rotation, time_Elapsed);
+            time_Elapsed += Time.deltaTime * sideways_Duration;
+
+            // if done sideways do upright
+
+            yield return null;
+        }
+        
+    }// end Bullet_Jump_Alignment()
+
+    /*
+    IEnumerator Bullet_Jump_Twirl()
+    {
+        float time_Elapsed = 0;
+
+        while (time_Elapsed < 1)
+        {
+            body_GFX.transform.rotation = Quaternion.Slerp(twirl_Start, twirl_Target, time_Elapsed);
+            time_Elapsed += Time.deltaTime * twirl_Duration;
+
+            yield return null;
+        }
+
+
+    }// end Bullet_Jump_Anim()
+    */
 
 }// end script
