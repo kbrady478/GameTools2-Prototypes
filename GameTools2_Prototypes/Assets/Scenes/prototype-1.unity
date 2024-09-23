@@ -1193,7 +1193,7 @@ GameObject:
   - component: {fileID: 1353543621}
   - component: {fileID: 1353543624}
   - component: {fileID: 1353543623}
-  - component: {fileID: 1353543622}
+  - component: {fileID: 1353543625}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -1217,29 +1217,6 @@ Transform:
   - {fileID: 270548786}
   m_Father: {fileID: 1849681417}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &1353543622
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1353543620}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1353543623
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1292,6 +1269,28 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1353543620}
+  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!64 &1353543625
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1353543620}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1385257297
 GameObject:
@@ -1461,18 +1460,22 @@ MonoBehaviour:
   ground_Mask:
     serializedVersion: 2
     m_Bits: 64
-  player_Height: 2
+  player_Height: 1
   is_Grounded: 0
-  move_Speed: 100
-  ground_Drag: 1.5
+  move_Speed: 150
+  ground_Drag: 1
   jump_Force: 8
   jump_Cooldown: 0.2
-  air_Multiplier: 0.3
+  air_Multiplier: 0.1
   jump_Ready: 0
-  crouch_Width: 0
-  crouch_Height: 0
-  crouch_Transition_Time: 0
+  crouch_Height: 0.3
+  crouch_Width: 2
+  crouch_Transition_Time: 1
   is_Crouched: 0
+  bullet_Jump_Force: 1
+  bullet_Jump_Charge: 0
+  bullet_Jump_Drag: 2
+  is_Bullet_Jumping: 0
 --- !u!1 &1890826115
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,5 +1,6 @@
 // tutorial used: https://www.youtube.com/watch?v=f473C43s8nE
 
+using System.Collections;
 using UnityEngine;
 
 public class player_Movement : MonoBehaviour
@@ -34,25 +35,39 @@ public class player_Movement : MonoBehaviour
     public bool jump_Ready;
 
     [Header("Crouching")]
-    public float crouch_Width;
     public float crouch_Height;
+    public float crouch_Width;
     public float crouch_Transition_Time;
     public bool is_Crouched;
 
+    private Vector3 standing_Scale;
     private Vector3 crouch_Scale;
+    private bool has_Crouch_Scaled;
+
+    [Header("Bullet Jumping")]
+    public float bullet_Jump_Force;
+    public float bullet_Jump_Charge;
+    public float bullet_Jump_Drag;
+    public bool is_Bullet_Jumping;
 
     // crouching will probably break ground check due to height, check may protrude down, need to fix
 
     private void Start()
     {
         rigid_Body.freezeRotation = true;
-        jump_Ready = true; // wont work if true on initialise for some reason
+
+        jump_Ready = true; 
+        has_Crouch_Scaled = false;
+        is_Bullet_Jumping = false;
+
+        standing_Scale = new Vector3(body_GFX.transform.localScale.x, body_GFX.transform.localScale.y, body_GFX.transform.localScale.z);
+        crouch_Scale = new Vector3(crouch_Width, crouch_Height, crouch_Width);
     }
 
     private void Update()
-    {
+    {        
         // ground check raycast, half the player height and then some to make contact
-        is_Grounded = Physics.Raycast(transform.position, Vector3.down, player_Height * 0.5f + 0.2f, ground_Mask);
+        is_Grounded = Physics.Raycast(transform.position, Vector3.down, (player_Height * body_GFX.transform.localScale.y) * 0.5f + 0.2f, ground_Mask);
 
         Player_Input();
         Speed_Control();
@@ -60,6 +75,7 @@ public class player_Movement : MonoBehaviour
         // apply drag
         if (is_Grounded)
             rigid_Body.linearDamping = ground_Drag;
+
         else
             rigid_Body.linearDamping = 0;
 
@@ -70,6 +86,10 @@ public class player_Movement : MonoBehaviour
         Move_Player();
     }// end FixedUpdated()
 
+
+/// BASE MOVEMENT FUNCTIONS 
+
+
     private void Player_Input()
     {
         horizontal_Input = Input.GetAxisRaw("Horizontal");
@@ -77,26 +97,16 @@ public class player_Movement : MonoBehaviour
 
         // crouching
         if (Input.GetKeyUp(crouch_Key))
+        {
             is_Crouched = false;
-        else if (Input.GetKey(crouch_Key))
+            has_Crouch_Scaled = false;
+            StopCoroutine("Stand_to_Crouch_Transition");
+            StartCoroutine("Crouch_to_Stand_Transition");
+        }
+        else if (Input.GetKey(KeyCode.LeftControl) && is_Grounded)
             Crouching();
             
-            
-            /*
-            Vector3 v3_Crouch_Height = new Vector3(body_GFX.transform.localScale.x, crouch_Height, body_GFX.transform.localScale.z);
-            if (body_GFX.transform.localScale.y > crouch_Height)
-                body_GFX.transform.localScale.y = Vector3.Lerp(player_Height, crouch_Height, crouch_Transition_Time);
-        */
-            /*
-            if (Input.GetKey(jump_Key))
-            {
-                // reset Y velocity
-                rigid_Body.angularVelocity = new Vector3(rigid_Body.angularVelocity.x, 0f, rigid_Body.angularVelocity.z);
 
-                rigid_Body.AddForce(transform.up * jump_Force, ForceMode.Impulse); // ForceMode.Impulse to only apply once
-            }
-            */
-        
 
         // jumping
         if (Input.GetKey(jump_Key) && jump_Ready && is_Grounded && !is_Crouched)
@@ -136,6 +146,10 @@ public class player_Movement : MonoBehaviour
     
     }// end Speed_Control()
 
+
+/// JUMPING FUNCTIONS
+
+
     private void Jump()
     {
         // reset Y velocity
@@ -150,19 +164,73 @@ public class player_Movement : MonoBehaviour
         jump_Ready = true;
     }// end Reset_Jump
 
+    
+/// CROUCHING + BULLET JUMP FUNCTIONS
+
+
     private void Crouching()
     {
+        //print("crouch time");
         is_Crouched = true;
 
         if (Input.GetKey(jump_Key))
         {
-;
 
-            rigid_Body.AddForce(camera_Direction.transform.forward * (jump_Force / 2), ForceMode.Impulse); // ForceMode.Impulse to only apply once
+            // will want to multiply bullet_Jump_Force by charge %
+            rigid_Body.AddForce(rigid_Body.transform.up * (jump_Force * 0.15f), ForceMode.Impulse);
+            rigid_Body.AddForce(camera_Direction.transform.forward * (bullet_Jump_Force * bullet_Jump_Charge), ForceMode.Impulse); // ForceMode.Impulse to only apply once
+            rigid_Body.linearDamping = bullet_Jump_Drag;
+            bullet_Jump_Charge = 0f; // reset after jump
+
+            // transition to jump
+        }
+        
+        else if (has_Crouch_Scaled == false)
+        {
+            has_Crouch_Scaled = true;
+            StopCoroutine("Crouch_to_Stand_Transition");
+            StartCoroutine("Stand_to_Crouch_Transition");
+            
         }
 
     }// end Crouching()
 
+    IEnumerator Stand_to_Crouch_Transition()
+    {
+        float time_Elapsed = 0;
 
+        while (time_Elapsed < 1)
+        {
+            body_GFX.transform.localScale = Vector3.Lerp(body_GFX.transform.localScale, crouch_Scale, time_Elapsed);
+            time_Elapsed += Time.deltaTime * crouch_Transition_Time;
+            bullet_Jump_Charge += time_Elapsed;
+
+            if (bullet_Jump_Charge > 1)
+                bullet_Jump_Charge = 1f;
+
+            yield return null;
+        }
+
+    }// end Stand_to_Crouch_Transition()
+
+    IEnumerator Crouch_to_Stand_Transition()
+    {
+        float time_Elapsed = 0;
+
+        while (time_Elapsed < 1)
+        {
+            body_GFX.transform.localScale = Vector3.Lerp(body_GFX.transform.localScale, standing_Scale, time_Elapsed);
+            time_Elapsed += Time.deltaTime * (crouch_Transition_Time *0.5f);
+            bullet_Jump_Charge -= time_Elapsed;
+
+            if (bullet_Jump_Charge < 0)
+                bullet_Jump_Charge = 0f;
+
+            yield return null;
+        }
+
+
+
+    }// end Crouch_to_Stand_Transition()
 
 }// end script
