@@ -10,6 +10,7 @@ public class player_Movement : MonoBehaviour
     public Transform orientation;
     public Transform camera_Direction;
     public Rigidbody rigid_Body;
+    public float max_Velocity;
 
     private Vector3 move_Direction;
     private float horizontal_Input;
@@ -96,12 +97,15 @@ public class player_Movement : MonoBehaviour
             rigid_Body.linearDamping = ground_Drag;
 
         else
-            rigid_Body.linearDamping = 0;
+            rigid_Body.linearDamping = bullet_Jump_Drag;
 
     }// end Update()
 
     private void FixedUpdate()
     {
+        if (rigid_Body.angularVelocity.magnitude > max_Velocity)
+            rigid_Body.angularVelocity = Vector3.ClampMagnitude(rigid_Body.angularVelocity, max_Velocity);
+        
         Move_Player();
     }// end FixedUpdated()
 
@@ -125,8 +129,6 @@ public class player_Movement : MonoBehaviour
         else if (Input.GetKey(KeyCode.LeftControl) && is_Grounded)
             Crouching();
             
-
-
         // jumping
         if (Input.GetKey(jump_Key) && jump_Ready && is_Grounded && !is_Crouched)
         {
@@ -144,11 +146,11 @@ public class player_Movement : MonoBehaviour
         // calculate direction
         move_Direction = orientation.forward * vertical_Input + orientation.right * horizontal_Input;
 
-        if (is_Grounded)
+        if (is_Grounded && is_Bullet_Jumping == false)
             rigid_Body.AddForce(move_Direction.normalized * move_Speed * 10f * Time.deltaTime, ForceMode.Force); // extra 10f because its slow without
-        
-        else if (!is_Grounded)
-            rigid_Body.AddForce(move_Direction.normalized * move_Speed * 10f *air_Multiplier * Time.deltaTime, ForceMode.Force); 
+
+        else if (!is_Grounded && is_Bullet_Jumping == false)
+            rigid_Body.AddForce(move_Direction.normalized * move_Speed * 5f  * Time.deltaTime, ForceMode.Force); 
 
     }// end Move_Player()
 
@@ -194,7 +196,7 @@ public class player_Movement : MonoBehaviour
         // Bullet Jump
         if (Input.GetKey(jump_Key))
         {
-            rigid_Body.AddForce(rigid_Body.transform.up * (jump_Force * 0.25f), ForceMode.Impulse);
+            rigid_Body.AddForce(rigid_Body.transform.up * (jump_Force * 0.5f), ForceMode.Impulse);
             rigid_Body.AddForce(camera_Direction.transform.forward * (bullet_Jump_Force * bullet_Jump_Charge), ForceMode.Impulse); // ForceMode.Impulse to only apply once
             rigid_Body.linearDamping = bullet_Jump_Drag;
             bullet_Jump_Charge = 0f; // reset after jump
@@ -252,7 +254,7 @@ public class player_Movement : MonoBehaviour
     // align character rotation with angle of camera to give leaping effect
     
     // change the x of the body_GFX to 90 then back
-   /*
+  /*
     IEnumerator Bullet_Jump_Alignment()
     {
         upright_Rotation = Quaternion.Euler(body_GFX.transform.localRotation.x, rigid_Body.transform.rotation.y, rigid_Body.transform.rotation.z);
