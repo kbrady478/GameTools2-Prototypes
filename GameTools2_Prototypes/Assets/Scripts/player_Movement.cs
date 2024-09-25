@@ -201,7 +201,7 @@ public class player_Movement : MonoBehaviour
             rigid_Body.linearDamping = bullet_Jump_Drag;
             bullet_Jump_Charge = 0f; // reset after jump
 
-           StartCoroutine("Bullet_Jump_Alignment");
+           //StartCoroutine("Bullet_Jump_Alignment");
         }
         
         // Crouching
