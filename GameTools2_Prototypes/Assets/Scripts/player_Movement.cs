@@ -201,7 +201,7 @@ public class player_Movement : MonoBehaviour
             rigid_Body.linearDamping = bullet_Jump_Drag;
             bullet_Jump_Charge = 0f; // reset after jump
 
-           //StartCoroutine("Bullet_Jump_Alignment");
+           StartCoroutine("Bullet_Jump_Alignment");
         }
         
         // Crouching
@@ -254,7 +254,7 @@ public class player_Movement : MonoBehaviour
     // align character rotation with angle of camera to give leaping effect
     
     // change the x of the body_GFX to 90 then back
-  /*
+
     IEnumerator Bullet_Jump_Alignment()
     {
         upright_Rotation = Quaternion.Euler(body_GFX.transform.localRotation.x, rigid_Body.transform.rotation.y, rigid_Body.transform.rotation.z);
