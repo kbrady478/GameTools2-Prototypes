@@ -60,6 +60,8 @@ public class player_Movement : MonoBehaviour
     private Quaternion upright_Rotation;
     private Quaternion sideways_Rotation;
 
+    public Transform respawn_Layer;
+    public Transform respawn_Point;
     // could be an idea where you chain bullet jumps by removing ground check on crouch, instead put it on the bullet jump check
     // allows for jumps to be charged midair for release on contact with ground
 
@@ -103,12 +105,20 @@ public class player_Movement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        Respawn();
         if (rigid_Body.angularVelocity.magnitude > max_Velocity)
             rigid_Body.angularVelocity = Vector3.ClampMagnitude(rigid_Body.angularVelocity, max_Velocity);
         
         Move_Player();
     }// end FixedUpdated()
 
+    private void Respawn()
+    {
+        if (rigid_Body.transform.position.y < respawn_Layer.transform.position.y)
+        {
+            rigid_Body.transform.position = respawn_Point.transform.position;
+        }
+    }
 
 /// BASE MOVEMENT FUNCTIONS 
 
