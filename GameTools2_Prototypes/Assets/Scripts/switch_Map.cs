@@ -31,6 +31,7 @@ public class switch_Map : MonoBehaviour
         }
         else if (swap_Map == false) //&& map1.activeInHierarchy == false)
         {
+            StopCoroutine(Timer());
             map1.SetActive(true);
             map2.SetActive(false);
             
