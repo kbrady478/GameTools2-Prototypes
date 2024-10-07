@@ -83,6 +83,11 @@ public class player_Movement : MonoBehaviour
         //Respawn();
         if (rigid_Body.angularVelocity.magnitude > max_Velocity)
             rigid_Body.angularVelocity = Vector3.ClampMagnitude(rigid_Body.angularVelocity, max_Velocity);
+
+        if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.D))
+        {
+            rigid_Body.linearVelocity = Vector3.zero;
+        }
         
         Move_Player();
     }// end FixedUpdated()
