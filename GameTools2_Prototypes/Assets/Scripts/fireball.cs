@@ -1,34 +1,70 @@
 using System;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.Serialization;
+
+interface IFireball
+{
+    void disable_Nav();
+}
+
 
 public class fireball : MonoBehaviour
 {
-    [Header("Explosion Effect")] 
-    public LayerMask hit_Layer;
-    public LayerMask block_Layer;
-    public int max_Hits;
-    public int max_Damage;
-    public int min_Damage;
+    [FormerlySerializedAs("block_Layer")] [Header("Explosion Effect")] 
+    public LayerMask rigid_Body_Layer;
+    public int hit_Limit;
     public float radius;
     public float explosion_Force;
 
     private Collider[] hit_Colliders;
+    private bool knockback_Completed;
 
     private void Awake()
     {
-        hit_Colliders = new Collider[max_Hits];
+        hit_Colliders = new Collider[hit_Limit];
+        knockback_Completed = false;
     }
 
     private void OnTriggerEnter(Collider other)
     {
         print("fireball exploding");
-        
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Enemy"))
         {
-            Physics.Raycast()
-            int hits = Physics.OverlapSphereNonAlloc(other.transform.position, radius, hit_Colliders, hit_Layer);
+            print("found enemy");
+            IFireball enemy = other.GetComponent<IFireball>();
+            if (enemy != null)
+            {
+                print("disabling enemy nav");
+                enemy.disable_Nav();
+            }
         }
         
-        Destroy(gameObject);
+        Knockback();
+        
+        if (knockback_Completed)
+            Destroy(gameObject);
+    }
+
+    private void Knockback()
+    {
+        print("enter knockback");
+        
+        int colliders_Hit_Count = Physics.OverlapSphereNonAlloc(transform.position, radius, hit_Colliders, rigid_Body_Layer);
+
+        for (int i = 0; i < colliders_Hit_Count; i++)
+        {
+            print("attempting to find rigidbody");
+            
+            Rigidbody rb = hit_Colliders[i].GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                print("attempting to knockback: " + rb.gameObject.name);
+                rb.AddExplosionForce(explosion_Force, transform.position, radius);
+                
+            }
+        }
+        
+        knockback_Completed = true;
     }
 }

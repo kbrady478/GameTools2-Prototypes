@@ -20,7 +20,7 @@ public class wand_Controller : MonoBehaviour
     
     [Header("Ice Wand")]
     public GameObject ice_Wand;
-    //public GameObject ice_Projectile;
+    public GameObject ice_Projectile;
     
     [Header("Electric Wand")]
     public GameObject electric_Wand;
@@ -84,6 +84,9 @@ public class wand_Controller : MonoBehaviour
             else if (ice_Wand.activeSelf)
             {
                 print("shooting ice wand");
+                GameObject projectile = Instantiate(ice_Projectile, casting_Point.position, Quaternion.identity);
+                projectile.transform.forward = projectile_Direction.normalized; 
+                projectile.GetComponent<Rigidbody>().AddForce(projectile_Direction.normalized * projectile_Force, ForceMode.Impulse);
             }
 
             else if (electric_Wand.activeSelf)
