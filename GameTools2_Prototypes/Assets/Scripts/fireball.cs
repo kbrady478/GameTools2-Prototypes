@@ -11,6 +11,10 @@ interface IFireball
 
 public class fireball : MonoBehaviour
 {
+    private reset_Enemy reset_Enemy_Script;
+    private GameObject target;
+
+    
     [FormerlySerializedAs("block_Layer")] [Header("Explosion Effect")] 
     public LayerMask rigid_Body_Layer;
     public int hit_Limit;
@@ -20,10 +24,13 @@ public class fireball : MonoBehaviour
     private Collider[] hit_Colliders;
     private bool knockback_Completed;
 
+    
     private void Awake()
     {
         hit_Colliders = new Collider[hit_Limit];
         knockback_Completed = false;
+        target = GameObject.FindGameObjectWithTag("Target");
+        reset_Enemy_Script = target.GetComponent<reset_Enemy>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -39,6 +46,8 @@ public class fireball : MonoBehaviour
                 enemy.disable_Nav();
             }
         }
+        else if(other.CompareTag("Target"))
+            reset_Enemy_Script.Reset();
         
         Knockback();
         

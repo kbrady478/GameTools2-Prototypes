@@ -11,20 +11,20 @@ using UnityEngine.AI;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 
-public class Enemy_Movement : MonoBehaviour, IFireball, IIcicle, IElectroball
+public class Enemy_Movement : MonoBehaviour, IFireball, IIcicle, IElectroball, ITransmutation
 {
     [Header("General")]
     public Color regular_Color;
-    
+
+    private Collider obj_Collider;
     
     [Header("Enemy Navigation")]
+    public Transform[] patrol_Points; // Array of patrol waypoints, added in editor
+    public int target_Point; // Next patrol point to walk to
+    
     private NavMeshAgent enemy_Nav_Agent;
     private Rigidbody rb;
     private bool can_Move;
-    
-    public Transform[] patrol_Points; // Array of patrol waypoints, added in editor
-    public int target_Point; // Next patrol point to walk to
-   
     
     [Header("Knockback Effect")]
     public LayerMask ground_layer;
@@ -45,11 +45,19 @@ public class Enemy_Movement : MonoBehaviour, IFireball, IIcicle, IElectroball
     public GameObject electric_Effect;
     public float electrify_Time;
 
-    private bool is_Electrified;
+
+    [Header("Transmutation Effect")]
+    public GameObject player_GFX;
+    public GameObject[] transmutation_Items;
+    
+    private GameObject transmutation;
+    private int current_Item;
     
     
     private void Start()
     {
+        obj_Collider = GetComponent<Collider>();
+        
         enemy_Nav_Agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
         target_Point = 0;
@@ -58,18 +66,17 @@ public class Enemy_Movement : MonoBehaviour, IFireball, IIcicle, IElectroball
         enemy_Material.color = regular_Color;
 
         electric_Effect.SetActive(false);
-        is_Electrified = false;
+        can_Move = true;
     }// end Start
 
     private void Update()
     {
-        if (is_Electrified == false)
+        if (can_Move)
             Patrol_State();
     }// end Update
     
     private void Patrol_State()
     {
-        
         float distance_To_Waypoint = Vector3.Distance(patrol_Points[target_Point].position, transform.position);
 
         // Checks if close enough to target waypoint, then changes to next
@@ -87,13 +94,9 @@ public class Enemy_Movement : MonoBehaviour, IFireball, IIcicle, IElectroball
     
     public void disable_Nav()
     {
+        print("nav disabled");
         can_Move = false;
         enemy_Nav_Agent.enabled = false;
-    }
-
-    private void Renable_Nav()
-    {
-        
     }
     
     // ICICLE EFFECTS
@@ -124,7 +127,7 @@ public class Enemy_Movement : MonoBehaviour, IFireball, IIcicle, IElectroball
         
         electric_Effect.SetActive(true);
         enemy_Nav_Agent.enabled = false;
-        is_Electrified = true;
+        can_Move = false;
         enemy_Material.color = electrocuted_Color;
         
         StartCoroutine(Electrified());
@@ -136,9 +139,32 @@ public class Enemy_Movement : MonoBehaviour, IFireball, IIcicle, IElectroball
 
         electric_Effect.SetActive(false);
         enemy_Nav_Agent.enabled = true;
-        is_Electrified = false;
+        can_Move = true;
         enemy_Material.color = regular_Color;
     }
+    
+    // TRANSMUTATION EFFECT 
+
+    public void Transmutate()
+    {
+        can_Move = false;
+        
+        if (transmutation != null)
+            transmutation.SetActive(false);
+        
+        int item = Random.Range(0, transmutation_Items.Length);
+        while (item == current_Item)
+            item = Random.Range(0, transmutation_Items.Length);
+        
+        enemy_Nav_Agent.enabled = false;
+        rb.isKinematic = false;
+        obj_Collider.enabled = false;
+        player_GFX.SetActive(false);
+        
+        transmutation = transmutation_Items[item];
+        transmutation.SetActive(true);
+    }
+    
 }// end Enemy_Movement
 
 

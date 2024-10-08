@@ -28,7 +28,7 @@ public class wand_Controller : MonoBehaviour
     
     [Header("Transmutation Wand")]
     public GameObject transmutation_Wand;
-    //public GameObject transmutation_Projectile;
+    public GameObject transmutation_Projectile;
 
 
     private int current_Wand;
@@ -100,6 +100,9 @@ public class wand_Controller : MonoBehaviour
             else if (transmutation_Wand.activeSelf)
             {
                 print("shooting trans wand");
+                GameObject projectile = Instantiate(transmutation_Projectile, casting_Point.position, Quaternion.identity);
+                projectile.transform.forward = projectile_Direction.normalized; 
+                projectile.GetComponent<Rigidbody>().AddForce(projectile_Direction.normalized * projectile_Force, ForceMode.Impulse);
             }
 
             if (allow_Invoke)
