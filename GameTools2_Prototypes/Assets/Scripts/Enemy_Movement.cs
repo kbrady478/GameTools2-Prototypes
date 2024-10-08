@@ -11,8 +11,12 @@ using UnityEngine.AI;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 
-public class Enemy_Movement : MonoBehaviour, IFireball, IIcicle
+public class Enemy_Movement : MonoBehaviour, IFireball, IIcicle, IElectroball
 {
+    [Header("General")]
+    public Color regular_Color;
+    
+    
     [Header("Enemy Navigation")]
     private NavMeshAgent enemy_Nav_Agent;
     private Rigidbody rb;
@@ -20,32 +24,47 @@ public class Enemy_Movement : MonoBehaviour, IFireball, IIcicle
     
     public Transform[] patrol_Points; // Array of patrol waypoints, added in editor
     public int target_Point; // Next patrol point to walk to
-
+   
+    
     [Header("Knockback Effect")]
     public LayerMask ground_layer;
 
     private bool is_Grounded;
 
+    
     [Header("Frozen Effect")]
     public Material enemy_Material;
-    public Color regular_Color, frozen_Color;
+    public Color  frozen_Color; 
     public float frozen_Time;
     
     private float regular_Speed;   
+    
+    
+    [Header("Electrfied Effect")]
+    public Color electrocuted_Color;
+    public GameObject electric_Effect;
+    public float electrify_Time;
+
+    private bool is_Electrified;
+    
     
     private void Start()
     {
         enemy_Nav_Agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
         target_Point = 0;
+        
         regular_Speed = enemy_Nav_Agent.speed;
         enemy_Material.color = regular_Color;
 
+        electric_Effect.SetActive(false);
+        is_Electrified = false;
     }// end Start
 
     private void Update()
     {
-        Patrol_State();
+        if (is_Electrified == false)
+            Patrol_State();
     }// end Update
     
     private void Patrol_State()
@@ -81,18 +100,45 @@ public class Enemy_Movement : MonoBehaviour, IFireball, IIcicle
     
     public void Is_Frozen()
     {
+        StopCoroutine(Frozen());
         print("slow recieved");
         enemy_Nav_Agent.speed = enemy_Nav_Agent.speed * 0.25f;
         enemy_Material.color = frozen_Color;
-        Invoke("Unfreeze", frozen_Time);
+        StartCoroutine(Frozen());
     }
 
-    private void Unfreeze()
+    private IEnumerator Frozen()
     {
+        yield return new WaitForSeconds(frozen_Time);
+        
         enemy_Nav_Agent.speed = regular_Speed;
         enemy_Material.color = regular_Color;
     }
     
+    // ELECTRIC EFFECTS
+
+    public void Is_Electrocuted()
+    {
+        StopCoroutine(Electrified());
+        print("electrocuted");
+        
+        electric_Effect.SetActive(true);
+        enemy_Nav_Agent.enabled = false;
+        is_Electrified = true;
+        enemy_Material.color = electrocuted_Color;
+        
+        StartCoroutine(Electrified());
+    }
+
+    private IEnumerator Electrified()
+    {
+        yield return new WaitForSeconds(electrify_Time);
+
+        electric_Effect.SetActive(false);
+        enemy_Nav_Agent.enabled = true;
+        is_Electrified = false;
+        enemy_Material.color = regular_Color;
+    }
 }// end Enemy_Movement
 
 
